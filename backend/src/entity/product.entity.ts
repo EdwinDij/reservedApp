@@ -1,9 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
-import { Shop } from "./shop.entity";
+import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+// import { Shop } from "./shop.entity";
+
 @Entity()
 export class Product {
   @PrimaryGeneratedColumn("uuid")
-  id: number;
+  id: string;
 
   @Column({ nullable: false })
   name: string;
@@ -17,6 +18,6 @@ export class Product {
   @Column({ nullable: false })
   image: string;
 
-  @ManyToOne(() => Shop, (shop) => shop.product)
-  shopId: Shop;
+  // @ManyToOne(() => Shop, (shop) => shop.products)
+  // shop: Shop; 
 }

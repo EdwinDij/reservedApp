@@ -3,14 +3,15 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
-  OneToMany,
+  // OneToMany,
 } from "typeorm";
 import { User } from "./users.entity";
-import { Product } from "./product.entity";
+// import { Product } from "./product.entity";
+
 @Entity()
 export class Shop {
   @PrimaryGeneratedColumn("uuid")
-  id: number;
+  id: string;
 
   @Column({ nullable: false })
   name: string;
@@ -18,9 +19,12 @@ export class Shop {
   @Column({ nullable: false })
   address: string;
 
-  @ManyToOne(() => User, (user) => user.shop) //relation avec l'user qui peut avoir plusieurs shops
-  userId: User;
+  @Column({ nullable: false })
+  userId: string;
 
-  @OneToMany(() => Product, (product) => product.shopId)
-  product: Product[];
+  @ManyToOne(() => User, (user) => user.shop) // relation avec l'utilisateur qui peut avoir plusieurs shops
+  user: User;
+
+  // @OneToMany(() => Product, (product) => product.shop) 
+  // products: Product[]; 
 }

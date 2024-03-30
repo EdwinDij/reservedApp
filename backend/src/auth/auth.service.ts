@@ -10,6 +10,7 @@ export class AuthService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+
     private jwtService: JwtService,
   ) {}
 
@@ -48,29 +49,29 @@ export class AuthService {
     try {
       const { email, password } = loginDto;
       const user = await this.usersRepository.findOne({ where: { email } });
-      const isPasswordValid = await bcrypt.compare(password, user.password);
+
       if (!email || !password) {
         return { message: "Veuillez remplir tous les champs.", status: 401 };
       }
       if (!user) {
         return { messsage: "Cet utilisateur n'existe pas.", status: 401 };
       }
-      if (!isPasswordValid) {
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+
+      if (isPasswordValid !== true) {
         return { message: "Mot de passe incorrect.", status: 401 };
       }
-      if (user && isPasswordValid) {
-        const payload = { sub: user.id, username: user.username };
-        return {
-          data: {
-            message: "Connexion réussie",
-            //url: "https://nestjs.com", modifier l'adresse de redirection une fois le front prêt
-            token: await this.jwtService.signAsync(payload),
-            status: 200,
-          },
-        };
-      }
+      const payload = { sub: user.id, username: user.username };
+      return {
+        data: {
+          message: "Connexion réussie",
+          //url: "https://nestjs.com", modifier l'adresse de redirection une fois le front prêt
+          token: await this.jwtService.signAsync(payload),
+          status: 200,
+        },
+      };
     } catch (error: unknown) {
-      console.log(error);
+      console.log(error, "error");
     }
   }
 }

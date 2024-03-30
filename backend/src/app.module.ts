@@ -6,10 +6,14 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { DataSource } from "typeorm";
 import { ConfigModule } from "@nestjs/config";
 import { User } from "./entity/users.entity";
-import { ShopModule } from './shop/shop.module';
+import { ShopModule } from "./shop/shop.module";
+import { JwtModule } from "@nestjs/jwt";
+import { jwtConstants } from "./auth/constants";
+import { Shop } from "./entity/shop.entity";
 
 @Module({
   imports: [
+    ShopModule,
     AuthModule,
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
@@ -19,10 +23,14 @@ import { ShopModule } from './shop/shop.module';
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [User],
+      entities: [User, Shop],
       synchronize: true,
     }),
-    ShopModule,
+    JwtModule.register({
+      global: true,
+      secret: jwtConstants.secret,
+      signOptions: { expiresIn: "1d" },
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],

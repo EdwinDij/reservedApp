@@ -11,13 +11,10 @@ export class AuthController {
     return this.authService.signup(signupDto);
   }
   @Post("login")
-  async login(@Body() loginDto: LoginDto) { //@Res() res: Response => A décommenter quand la redirection sera en place et mettre en param de la fonction
-    try {
-      //const redirectUrl = await this.authService.login(loginDto);
-      //res.redirect(redirectUrl.data.url);  // TODO: A décommenter quand la redirection sera en place
-      return this.authService.login(loginDto); // TODO: A supprimer quand la redirection sera en place
-    } catch (error) {
-      console.error(error);
-    }
+  async login(@Body() loginDto: LoginDto) {
+    //@Res() res: Response => A décommenter quand la redirection sera en place et mettre en param de la fonction
+    //const redirectUrl = await this.authService.login(loginDto);
+    //res.redirect(redirectUrl.data.url);  // TODO: A décommenter quand la redirection sera en place
+    return this.authService.login(loginDto); // TODO: A supprimer quand la redirection sera en place
   }
 }

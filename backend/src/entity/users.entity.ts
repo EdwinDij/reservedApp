@@ -4,7 +4,7 @@ import { Shop } from "./shop.entity";
 @Entity()
 export class User {
   @PrimaryGeneratedColumn("uuid")
-  id: number;
+  id: string;
 
   @Column({ nullable: false })
   username: string;
@@ -27,6 +27,6 @@ export class User {
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   updateAt: Date;
 
-  @OneToMany(() => Shop, (shop) => shop.userId)
+  @OneToMany(() => Shop, (shop) => shop.user)
   shop: Shop[];
 }
