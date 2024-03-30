@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
+import { Shop } from "./shop.entity";
 
 @Entity()
 export class User {
@@ -15,15 +16,9 @@ export class User {
   password: string;
 
   @Column({ nullable: true })
-  number_shop: number | null;
-
-  @Column({ type: "simple-array", nullable: true, default: []})
-  shops: string[] | null;
-
-  @Column({ nullable: true })
   plan: string | null;
 
-  @Column({ nullable: true})
+  @Column({ nullable: true })
   isPremium: boolean | null;
 
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
@@ -31,4 +26,7 @@ export class User {
 
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   updateAt: Date;
+
+  @OneToMany(() => Shop, (shop) => shop.userId)
+  shop: Shop[];
 }
