@@ -10,11 +10,12 @@ import {
   UseGuards,
   Req,
   Body,
+  Param,
 } from "@nestjs/common";
 
 @Controller("shop")
 export class ShopController {
-  constructor(private readonly ShopService: ShopService) { }
+  constructor(private readonly ShopService: ShopService) {}
   // @Get("/:id") //mettre l'id de l'user en paramètre
   // async getAllShop(id: string) {
   //   return this.ShopService.getAllShop(id);
@@ -36,14 +37,22 @@ export class ShopController {
   //   // async updateShop(id: string) {
   //   //     return this.ShopService.updateShop(id);
   //   // }
+  @UseGuards(AuthGuard)
+  @Delete("/:id")
+  async deleteShop(@Param("id") id: string, @Req() req) {
+    const userId = req.user.sub;
+    console.log(id, "id");
+    return this.ShopService.deleteShop(id, userId);
+  }
 
-  // shopDto: import("c:/Users/Millenium/Documents/workflow/reserved/backend/src/shop/dto/shop.dto").ShopDtoshopDto: import("c:/Users/Millenium/Documents/workflow/reserved/backend/src/shop/dto/shop.dto").ShopDto  @Delete("/:id")
-  //   async deleteShop(id: string) {
-  //     return this.ShopService.deleteShop(id);
-  //   }
-
-  //   @Patch("/:id")
-  //   async patchShop(id: string) {
-  //     return this.ShopService.patchShop(id);
-  //   }
+  @UseGuards(AuthGuard)
+  @Patch("/:id")
+  async patchShop(
+    @Param("id") id: string,
+    @Req() req,
+    @Body() shopDto: ShopDto,
+  ) {
+    const userId = req.user.sub;
+    return this.ShopService.patchShop(id, userId, shopDto);
+  }
 }

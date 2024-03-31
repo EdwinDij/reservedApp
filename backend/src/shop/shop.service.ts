@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from "@nestjs/common";
 import { User } from "../entity/users.entity";
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -40,6 +44,14 @@ export class ShopService {
           `Utilisateur avec l'ID ${userId} non trouvé`,
         );
       }
+      const shopExist = await this.shopRepository.findOne({
+        where: { name: shopDto.name },
+      });
+      if (shopExist) {
+        throw new NotFoundException(
+          `Le magasin ${shopDto.name} existe déjà à l'adresse ${shopDto.address}`,
+        );
+      }
       await this.shopRepository.save({
         name: shopDto.name,
         address: shopDto.address,
@@ -48,6 +60,65 @@ export class ShopService {
       return "magasin créé avec succès";
     } catch (error: unknown) {
       console.log(error);
+    }
+  }
+
+  async deleteShop(id: string, userId: string) {
+    try {
+      const shop = await this.shopRepository.findOne({
+        where: { id: id, userId: userId },
+      });
+      console.log(shop);
+      if (!shop) {
+        throw new NotFoundException(`Magasin avec l'ID ${id} non trouvé`);
+      }
+      await this.shopRepository.delete(id);
+      return "Magasin supprimé avec succès";
+    } catch (error: unknown) {
+      console.log(error);
+    }
+  }
+
+  async patchShop(id: string, userId: string, shopDto: ShopDto) {
+    try {
+      const shop = await this.shopRepository.findOne({
+        where: { id: id, userId: userId },
+      });
+      if (!shop) {
+        throw new NotFoundException(`Magasin avec l'ID ${id} non trouvé`);
+      }
+
+      const { name, address } = shopDto;
+      if (!name && !address) {
+        return "Aucun champ à mettre à jour n'a été fourni.";
+      }
+
+      const updateData: Partial<ShopDto> = {};
+
+      if (name !== shop.name) {
+        shop.name = name;
+        updateData.name = name;
+      }
+
+      if (address !== shop.address) {
+        shop.address = address;
+        updateData.address = address;
+      }
+
+      console.log(updateData, "updateData")
+
+      if (Object.keys(updateData).length > 0) {
+        await this.shopRepository.update(id, updateData);
+        return "Magasin mis à jour avec succès";
+      } else {
+        return "Aucune modification n'a été apportée";
+      }
+
+    } catch (error: unknown) {
+      console.log(error);
+      throw new InternalServerErrorException(
+        "Une erreur s'est produite lors de la mise à jour du magasin.",
+      );
     }
   }
 }
