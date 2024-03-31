@@ -18,21 +18,40 @@ export class ShopService {
     private shopRepository: Repository<Shop>,
   ) {}
 
-  // async getAllShop(userId: string){
-  //   try {
-  //     const user = await this.usersRepository.findOne({
-  //       where: { id: userId },
-  //     });
+  async getAllShop(userId: string) {
+    try {
+      const shop = await this.shopRepository.find({
+        where: { userId: userId },
+      });
 
-  //     if (!user) {
-  //       throw new NotFoundException(
-  //         `Utilisateur avec l'ID ${userId} non trouvé`,
-  //       );
-  //     }
-  //   } catch (error: unknown) {
-  //     console.log(error);
-  //   }
-  // }
+      if (!shop) {
+        throw new NotFoundException("Aucun magasin trouvé");
+      }
+      return shop;
+    } catch (error: unknown) {
+      console.log(error);
+      throw new InternalServerErrorException(
+        "Une erreur s'est produite lors de la récupération des magasins.",
+      );
+    }
+  }
+
+  async getShopById(id: string, userId:string) {
+    try {
+      const shop = await this.shopRepository.findOne({
+        where: { id: id, userId: userId },
+      });
+      if (!shop) {
+        throw new NotFoundException(`Magasin avec l'ID ${id} non trouvé`);
+      }
+      return shop;
+    } catch (error: unknown) {
+      console.log(error);
+      throw new InternalServerErrorException(
+        "Une erreur s'est produite lors de la récupération du magasin.",
+      );
+    }
+  }
 
   async createShop(shopDto: ShopDto, userId: string) {
     try {
@@ -82,7 +101,7 @@ export class ShopService {
   async patchShop(id: string, userId: string, shopDto: ShopDto) {
     try {
       const shop = await this.shopRepository.findOne({
-        where: { id: id, userId: userId },
+        where: { id: id, userId: userId }, //double vérification pour s'assurer que le magasin appartient à l'utilisateur et l'user existe
       });
       if (!shop) {
         throw new NotFoundException(`Magasin avec l'ID ${id} non trouvé`);
@@ -96,24 +115,24 @@ export class ShopService {
       const updateData: Partial<ShopDto> = {};
 
       if (name !== shop.name) {
+        //si le nom est différent de celui enregistré en base de données alors on met à jour le nom
         shop.name = name;
         updateData.name = name;
       }
 
       if (address !== shop.address) {
+        //pareil mais pour l'adresse
         shop.address = address;
         updateData.address = address;
       }
 
-      console.log(updateData, "updateData")
-
       if (Object.keys(updateData).length > 0) {
+        //on vérifie si des modifications ont été apportées
         await this.shopRepository.update(id, updateData);
         return "Magasin mis à jour avec succès";
       } else {
         return "Aucune modification n'a été apportée";
       }
-
     } catch (error: unknown) {
       console.log(error);
       throw new InternalServerErrorException(

@@ -16,15 +16,20 @@ import {
 @Controller("shop")
 export class ShopController {
   constructor(private readonly ShopService: ShopService) {}
-  // @Get("/:id") //mettre l'id de l'user en paramètre
-  // async getAllShop(id: string) {
-  //   return this.ShopService.getAllShop(id);
-  // }
 
-  //   @Get("/:id") //mettre l'id du shop en paramètre
-  //   async getShopById(id: string) {
-  //     return this.ShopService.getShopById(id);
-  //   }
+  @UseGuards(AuthGuard)
+  @Get("/") //mettre l'id de l'user en paramètre
+  async getAllShop(@Req() req) {
+    const userId = req.user.sub;
+    return this.ShopService.getAllShop(userId);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get("/:id") //mettre l'id du shop en paramètre
+  async getShopById(@Param("id") id: string, @Req() req) {
+    const userId = req.user.sub;
+    return this.ShopService.getShopById(id, userId);
+  }
 
   @UseGuards(AuthGuard)
   @Post("/")
@@ -37,6 +42,7 @@ export class ShopController {
   //   // async updateShop(id: string) {
   //   //     return this.ShopService.updateShop(id);
   //   // }
+  
   @UseGuards(AuthGuard)
   @Delete("/:id")
   async deleteShop(@Param("id") id: string, @Req() req) {
