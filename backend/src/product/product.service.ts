@@ -17,7 +17,6 @@ export class ProductService {
     @InjectRepository(ProductShop)
     private productShopRepository: Repository<ProductShop>,
     private readonly shopService: ShopService,
-
   ) {}
 
   async createProduct(productDto: ProductDto, userId: string, shopId: string) {
@@ -133,7 +132,8 @@ export class ProductService {
   }
 
   async linkProductToAllShops(product: Product, shops: Shop[]) {
-    for (const shop of shops) { // 👈 boucle sur les magasins de l'user
+    for (const shop of shops) {
+      // 👈 boucle sur les magasins de l'user
       await this.productShopRepository.save({
         product: product,
         shop: shop,
@@ -192,9 +192,12 @@ export class ProductService {
 
   async getAllProduct(userId: string) {
     try {
-      this.shopService.getAllShop(userId);
-      const products = await this.productRepository.find();
-      return { products, status: HttpStatus.OK };
+      const findShop = this.shopService.getAllShop(userId);
+      if (!findShop) {
+        const products = await this.productRepository.find();
+        return { products, status: HttpStatus.OK };
+      }
+
     } catch (error) {
       console.error(error);
       throw new HttpException(
