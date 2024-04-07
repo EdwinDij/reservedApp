@@ -78,7 +78,7 @@ export class ProductController {
   }
 
   @UseGuards(AuthGuard)
-  @Patch("disable/:productId/:shopId") // desactivation et activé d'un produit
+  @Patch("disable/:productId/:shopId") // desactivation et activé d'un produit dans un magasin
   async disableOrEnsableProduct(
     @Param("productId") productId: string,
     @Param("shopId") shopId: string,
