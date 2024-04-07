@@ -15,16 +15,10 @@ import { ProductDto } from "src/dto";
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
-  //   @UseGuards(AuthGuard)
-  //   @Get("/")
-  //   async getAllProduct(@Req() req){
-  //     const userId = req.user.sub;
-  //     return this.productService.getAllProduct(userId)
-  //   }
-
+   
   @UseGuards(AuthGuard)
-  @Post("/:shopId")
-  async createProduct(
+  @Post("/:shopId") // création d'un produit dans un magasin
+  async createProduct( 
     @Body() productDto: ProductDto,
     @Req() req,
     @Param("shopId") shopId: string,
@@ -33,21 +27,36 @@ export class ProductController {
     return this.productService.createProduct(productDto, userId, shopId);
   }
 
-  //création d'un produit dans tout les magasins
-  // @UseGuards(AuthGuard)
-  // @Post("/")
-  // async createProductInAllShop(@Body() productDto: ProductDto, @Req() req){
-  //   const userId = req.user.sub;
-  //   return this.productService.createProductInAllShop(productDto, userId);
-  // }
+  
+  @UseGuards(AuthGuard)
+  @Post("/")// création d'un produit dans tout les magasins
+  async createProductInAllShop(@Body() productDto: ProductDto, @Req() req){
+    const userId = req.user.sub;
+    return this.productService.createProductInAllShop(productDto, userId);
+  }
 
   @UseGuards(AuthGuard)
-  @Get("/:productId")
+  @Get("/:productId") // récupération d'un produit par son id 
   async getProductById(
-    @Req() req,
     @Param("productId") productId: string, // 👈 meme logique pour l'update et la suppression
   ) {
-    const userId = req.user.sub;
     return this.productService.getProductById(productId);
   }
+
+  @UseGuards(AuthGuard)
+  @Get("/:shopId") // récupération de tout les produits d'un magasin
+  async getAllProductByShop(@Param("shopId") shopId: string,
+  ){
+    return this.productService.getAllProductByShop(shopId)
+  }
+
+  @UseGuards(AuthGuard)
+  @Get("/shop/:productId") // récupération de tout les magasins d'un produit
+  async getAllShopByProduct(@Param("productId") productId: string,
+  ){
+    return this.productService.getAllShopByProduct(productId)
+  }
+
 }
+
+

@@ -76,59 +76,67 @@ export class ProductService {
     }
   }
 
-  // async createProductInAllShop(productDto: ProductDto, userId: string) {
-  //   const user = await this.usersRepository.findOne({ where: { id: userId } });
-  //   if (!user) {
-  //     throw new HttpException("Utilisateur non trouvé", HttpStatus.NOT_FOUND);
-  //   }
+  async createProductInAllShop(productDto: ProductDto, userId: string) {
+    try {
+      const user = await this.usersRepository.findOne({
+        where: { id: userId },
+      });
+      if (!user) {
+        throw new HttpException("Utilisateur non trouvé", HttpStatus.NOT_FOUND);
+      }
 
-  //   const shops = await this.shopRepository.find({
-  //     where: { userId: userId },
-  //   });
+      const shops = await this.shopRepository.find({
+        where: { userId: userId },
+      });
 
-  //   if (!shops || shops.length === 0) {
-  //     throw new HttpException(
-  //       "Aucun magasin trouvé pour cet utilisateur",
-  //       HttpStatus.NOT_FOUND,
-  //     );
-  //   }
+      if (shops.length === 0) {
+        throw new HttpException("Aucun magasin trouvé", HttpStatus.NOT_FOUND);
+      }
 
-  //   const entityManager = this.productRepository.manager;
+      //vérifier si le produit existe déjà dans le magasin
+      const findProductByName = await this.productRepository.findOne({
+        where: { name: productDto.name },
+      });
 
-  //   try {
-  //     await entityManager.transaction(
-  //       async (transactionalEntityManager: EntityManager) => {
-  //         for (const shop of shops) {
-  //           const productExist = await transactionalEntityManager.findOne(
-  //             Product,
-  //             {
-  //               where: { name: productDto.name, shops: shop },
-  //             },
-  //           );
+      if (findProductByName !== null) {
+        throw new HttpException(
+          "Ce produit existe déjà dans ce magasin",
+          HttpStatus.CONFLICT,
+        );
+      }
 
-  //           if (!productExist) {
-  //             const product = transactionalEntityManager.create(Product, {
-  //               ...productDto,
-  //               shop: shop,
-  //             });
-  //             await transactionalEntityManager.save(product);
-  //           }
-  //         }
-  //       },
-  //     );
-  //   } catch (error) {
-  //     console.error(error);
-  //     throw new HttpException(
-  //       "Une erreur s'est produite",
-  //       HttpStatus.INTERNAL_SERVER_ERROR,
-  //     );
-  //   }
+      //enregistrement du produit dans la table produit
+      const product = await this.productRepository.save({
+        name: productDto.name,
+        price: productDto.price,
+        description: productDto.description,
+      });
 
-  //   return {
-  //     message: "Produit créé avec succès dans tous les magasins",
-  //     status: HttpStatus.CREATED,
-  //   };
-  // }
+      //enregistrement du produit dans les magasins via la table de liaison
+      await this.linkProductToAllShops(product, shops);
+
+      return {
+        message: "Produit créé avec succès dans tout les magasins",
+        status: HttpStatus.CREATED,
+        data: product,
+      };
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        "Une erreur s'est produite",
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async linkProductToAllShops(product: Product, shops: Shop[]) {
+    for (const shop of shops) { // 👈 boucle sur les magasins de l'user
+      await this.productShopRepository.save({
+        product: product,
+        shop: shop,
+      });
+    }
+  }
 
   async getAllProduct(userId: string, shopId: string) {
     const user = await this.usersRepository.findOne({ where: { id: userId } });
@@ -152,6 +160,39 @@ export class ProductService {
     return allProducts;
   }
 
+  async getAllProductByShop(shopId: string) {
+    const shop = await this.shopRepository.findOne({ where: { id: shopId } });
+    if (!shop) {
+      throw new HttpException("Magasin non trouvé", HttpStatus.NOT_FOUND);
+    }
+
+    console.log("shopId", shopId);
+    const products = await this.productRepository
+      .createQueryBuilder("product")
+      .innerJoin("product.productShops", "productShop")
+      .where("productShop.shopId = :shopId", { shopId })
+      .getMany();
+
+    return products;
+  }
+
+  async getAllShopByProduct(productId: string) {
+    const product = await this.productRepository.findOne({
+      where: { id: productId },
+    });
+    if (!product) {
+      throw new HttpException("Produit non trouvé", HttpStatus.NOT_FOUND);
+    }
+
+    const shops = await this.shopRepository
+      .createQueryBuilder("shop")
+      .innerJoin("shop.productShops", "productShop")
+      .where("productShop.productId = :productId", { productId })
+      .getMany();
+
+    return shops;
+  }
+
   async getProductById(productId: string) {
     // const user = await this.usersRepository.findOne({ where: { id: userId } });
     // if (!user) {
@@ -164,13 +205,7 @@ export class ProductService {
     if (!productData) {
       throw new HttpException("Produit non trouvé", HttpStatus.NOT_FOUND);
     }
-    return productData;
-  }
 
-  async getProduct(shopId: string) {
-    const shop = await this.shopRepository.findOne({ where: { id: shopId } });
-    if (!shop) {
-      throw new HttpException("Magasin non trouvé", HttpStatus.NOT_FOUND);
-    }
+    return { product: productData, status: HttpStatus.OK };
   }
 }
