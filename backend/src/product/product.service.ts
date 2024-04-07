@@ -197,7 +197,30 @@ export class ProductService {
         const products = await this.productRepository.find();
         return { products, status: HttpStatus.OK };
       }
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        "Une erreur s'est produite",
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 
+  async deleteProduct(productId: string) {
+    try {
+      const product = await this.productRepository.findOne({
+        where: { id: productId },
+      });
+      if (!product) {
+        throw new HttpException("Produit non trouvé", HttpStatus.NOT_FOUND);
+      }
+
+      await this.productRepository.delete({ id: productId });
+
+      return {
+        message: "Produit supprimé avec succès",
+        status: HttpStatus.OK,
+      };
     } catch (error) {
       console.error(error);
       throw new HttpException(

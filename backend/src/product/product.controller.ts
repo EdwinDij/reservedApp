@@ -6,6 +6,7 @@ import {
   Post,
   Body,
   Param,
+  Delete,
 } from "@nestjs/common";
 import { ProductService } from "./product.service";
 import { AuthGuard } from "src/auth/auth.guard";
@@ -64,6 +65,11 @@ export class ProductController {
     return this.productService.getAllProduct(userId)
   }
 
+  @UseGuards(AuthGuard)
+  @Delete("/:productId") // suppression d'un produit
+  async deleteProduct(@Param("productId") productId: string){
+    return this.productService.deleteProduct(productId)
+  }
 
 }
 
