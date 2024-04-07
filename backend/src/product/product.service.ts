@@ -206,7 +206,7 @@ export class ProductService {
     }
   }
 
-  async deleteProduct(productId: string) {
+  async deleteProductForAllShop(productId: string) {
     try {
       const product = await this.productRepository.findOne({
         where: { id: productId },
@@ -220,6 +220,119 @@ export class ProductService {
       return {
         message: "Produit supprimé avec succès",
         status: HttpStatus.OK,
+        data: product,
+      };
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        "Une erreur s'est produite",
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async deleteProductByShop(prodcutId: string, shopId: string) {
+    try {
+      const product = await this.productRepository.findOne({
+        where: { id: prodcutId },
+      });
+      if (!product) {
+        throw new HttpException("Produit non trouvé", HttpStatus.NOT_FOUND);
+      }
+
+      const shop = await this.shopRepository.findOne({
+        where: { id: shopId },
+      });
+      if (!shop) {
+        throw new HttpException("Magasin non trouvé", HttpStatus.NOT_FOUND);
+      }
+
+      await this.productShopRepository.delete({
+        product: product,
+        shop: shop,
+      });
+
+      return {
+        message: "Produit supprimé avec succès",
+        status: HttpStatus.OK,
+        data: product,
+      };
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        "Une erreur s'est produite",
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async disableOrEnsableProductByShop(productId: string, shopId: string) {
+    try {
+      const product = await this.productRepository.findOne({
+        where: { id: productId },
+      });
+      if (!product) {
+        throw new HttpException("Produit non trouvé", HttpStatus.NOT_FOUND);
+      }
+
+      const shop = await this.shopRepository.findOne({
+        where: { id: shopId },
+      });
+      if (!shop) {
+        throw new HttpException("Magasin non trouvé", HttpStatus.NOT_FOUND);
+      }
+
+      const productShop = await this.productShopRepository.findOne({
+        where: { product: product, shop: shop },
+      });
+      if (!productShop) {
+        throw new HttpException(
+          "Produit non trouvé dans ce magasin",
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const productShopData = await this.productShopRepository.update(
+        { product: product, shop: shop },
+        { isActive: !productShop.isActive },
+      );
+
+      return {
+        message: "Produit mis à jour avec succès",
+        status: HttpStatus.OK,
+        data: productShopData,
+      };
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        "Une erreur s'est produite",
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async modifyProduct(productDto: ProductDto, productId: string) {
+    try {
+      const product = await this.productRepository.findOne({
+        where: { id: productId },
+      });
+      if (!product) {
+        throw new HttpException("Produit non trouvé", HttpStatus.NOT_FOUND);
+      }
+
+      const productData = await this.productRepository.update(
+        { id: productId },
+        {
+          name: productDto.name,
+          price: productDto.price,
+          description: productDto.description,
+        },
+      );
+
+      return {
+        message: "Produit mis à jour avec succès",
+        status: HttpStatus.OK,
+        data: productData,
       };
     } catch (error) {
       console.error(error);
