@@ -27,6 +27,6 @@ export class User {
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   updateAt: Date;
 
-  @OneToMany(() => Shop, (shop) => shop.user)
+  @OneToMany(() => Shop, (shop) => shop.user, { onDelete: "CASCADE" })
   shop: Shop[];
 }

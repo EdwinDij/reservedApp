@@ -8,9 +8,11 @@ export class ProductShop {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @ManyToOne(() => Product, (product) => product.productShops)
+  @ManyToOne(() => Product, (product) => product.productShops, {
+    onDelete: "CASCADE",
+  }) 
   product: Product;
 
-  @ManyToOne(() => Shop, (shop) => shop.productShops)
+  @ManyToOne(() => Shop, (shop) => shop.productShops, { onDelete: "CASCADE" })
   shop: Shop;
 }

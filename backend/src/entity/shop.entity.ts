@@ -26,10 +26,13 @@ export class Shop {
   @Column({ nullable: false })
   userId: string;
 
-  @ManyToOne(() => User, (user) => user.shop) // relation avec l'utilisateur qui peut avoir plusieurs shops
+  @ManyToOne(() => User, (user) => user.shop, { onDelete: "CASCADE" }) // relation avec l'utilisateur qui peut avoir plusieurs shops
   user: User;
 
-  @OneToMany(() => ProductShop, (productShop) => productShop.shop)
+  @OneToMany(() => ProductShop, (productShop) => productShop.shop, {
+    cascade: true,
+    onDelete: "CASCADE",
+  })
   productShops: ProductShop[];
 
   @ManyToMany(() => Product, (product) => product.shops)
