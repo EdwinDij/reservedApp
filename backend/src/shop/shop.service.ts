@@ -3,11 +3,10 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from "@nestjs/common";
-import { User } from "../entity/users.entity";
+import { User, Shop } from "../entity";
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Shop } from "../entity/shop.entity";
-import { ShopDto } from "./dto/shop.dto";
+import { ShopDto } from "../dto";
 
 @Injectable()
 export class ShopService {
@@ -36,7 +35,7 @@ export class ShopService {
     }
   }
 
-  async getShopById(id: string, userId:string) {
+  async getShopById(id: string, userId: string) {
     try {
       const shop = await this.shopRepository.findOne({
         where: { id: id, userId: userId },
@@ -66,7 +65,7 @@ export class ShopService {
       const shopExist = await this.shopRepository.findOne({
         where: { name: shopDto.name },
       });
-      if (shopExist) {
+      if (shopExist) { //TODO: check si c'est utile ou pas d'utilisé findOne
         throw new NotFoundException(
           `Le magasin ${shopDto.name} existe déjà à l'adresse ${shopDto.address}`,
         );

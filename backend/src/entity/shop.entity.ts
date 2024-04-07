@@ -3,10 +3,10 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
-  // OneToMany,
+  OneToMany,
 } from "typeorm";
-import { User } from "./users.entity";
-// import { Product } from "./product.entity";
+import { User } from "./index";
+import { Product } from "./product.entity";
 
 @Entity()
 export class Shop {
@@ -25,6 +25,6 @@ export class Shop {
   @ManyToOne(() => User, (user) => user.shop) // relation avec l'utilisateur qui peut avoir plusieurs shops
   user: User;
 
-  // @OneToMany(() => Product, (product) => product.shop) 
-  // products: Product[]; 
+  @OneToMany(() => Product, (product) => product.shop) 
+  products: Product[]; 
 }

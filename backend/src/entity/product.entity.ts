@@ -1,5 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
-// import { Shop } from "./shop.entity";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
+import { Shop } from "./index";
 
 @Entity()
 export class Product {
@@ -10,14 +10,11 @@ export class Product {
   name: string;
 
   @Column({ nullable: false })
-  price: number;
+  price: string;
 
   @Column({ nullable: false })
   description: string;
 
-  @Column({ nullable: false })
-  image: string;
-
-  // @ManyToOne(() => Shop, (shop) => shop.products)
-  // shop: Shop; 
+  @ManyToOne(() => Shop, (shop) => shop.products)
+  shop: Shop;
 }

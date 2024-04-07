@@ -1,20 +1,22 @@
 import { Module } from "@nestjs/common";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
-import { AuthModule } from "./auth/auth.module";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { DataSource } from "typeorm";
 import { ConfigModule } from "@nestjs/config";
-import { User } from "./entity/users.entity";
-import { ShopModule } from "./shop/shop.module";
 import { JwtModule } from "@nestjs/jwt";
 import { jwtConstants } from "./auth/constants";
-import { Shop } from "./entity/shop.entity";
+import { ProductModule } from "./product/product.module";
+import { ShopModule } from "./shop/shop.module";
+import { AuthModule } from "./auth/auth.module";
+
+import { Shop, User, Product } from "./entity";
 
 @Module({
   imports: [
     ShopModule,
     AuthModule,
+    ProductModule,
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
       type: "postgres",
@@ -23,7 +25,7 @@ import { Shop } from "./entity/shop.entity";
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [User, Shop],
+      entities: [User, Shop, Product],
       synchronize: true,
     }),
     JwtModule.register({

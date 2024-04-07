@@ -1,5 +1,5 @@
 import { AuthGuard } from "src/auth/auth.guard";
-import { ShopDto } from "./dto/shop.dto";
+import { ShopDto } from "../dto";
 import { ShopService } from "./shop.service";
 import {
   Controller,
@@ -42,7 +42,7 @@ export class ShopController {
   //   // async updateShop(id: string) {
   //   //     return this.ShopService.updateShop(id);
   //   // }
-  
+
   @UseGuards(AuthGuard)
   @Delete("/:id")
   async deleteShop(@Param("id") id: string, @Req() req) {
