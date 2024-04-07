@@ -57,6 +57,14 @@ export class ProductController {
     return this.productService.getAllShopByProduct(productId)
   }
 
+  @UseGuards(AuthGuard)
+  @Get("/") // récupération de tout les produits
+  async getAllProduct(@Req() req){
+    const userId = req.user.sub;
+    return this.productService.getAllProduct(userId)
+  }
+
+
 }
 
 

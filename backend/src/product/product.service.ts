@@ -3,6 +3,7 @@ import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { ProductDto } from "../dto";
 import { User, Shop, Product, ProductShop } from "../entity";
+import { ShopService } from "../shop/shop.service";
 
 @Injectable()
 export class ProductService {
@@ -15,6 +16,8 @@ export class ProductService {
     private productRepository: Repository<Product>,
     @InjectRepository(ProductShop)
     private productShopRepository: Repository<ProductShop>,
+    private readonly shopService: ShopService,
+
   ) {}
 
   async createProduct(productDto: ProductDto, userId: string, shopId: string) {
@@ -138,28 +141,6 @@ export class ProductService {
     }
   }
 
-  async getAllProduct(userId: string, shopId: string) {
-    const user = await this.usersRepository.findOne({ where: { id: userId } });
-    if (!user) {
-      throw new HttpException("Utilisateur non trouvé", HttpStatus.NOT_FOUND);
-    }
-
-    const shop = await this.shopRepository.findOne({ where: { id: shopId } });
-    if (!shop) {
-      throw new HttpException("Magasin non trouvé", HttpStatus.NOT_FOUND);
-    }
-
-    const allProducts = await this.productRepository.find({
-      where: { shops: shop },
-    });
-
-    if (allProducts.length === 0) {
-      throw new HttpException("Aucun produit trouvé", HttpStatus.NOT_FOUND);
-    }
-
-    return allProducts;
-  }
-
   async getAllProductByShop(shopId: string) {
     const shop = await this.shopRepository.findOne({ where: { id: shopId } });
     if (!shop) {
@@ -207,5 +188,19 @@ export class ProductService {
     }
 
     return { product: productData, status: HttpStatus.OK };
+  }
+
+  async getAllProduct(userId: string) {
+    try {
+      this.shopService.getAllShop(userId);
+      const products = await this.productRepository.find();
+      return { products, status: HttpStatus.OK };
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        "Une erreur s'est produite",
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }
