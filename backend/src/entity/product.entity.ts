@@ -16,5 +16,5 @@ export class Product {
   description: string;
 
   @ManyToOne(() => Shop, (shop) => shop.products)
-  shop: Shop;
+  shop: Shop | Shop["id"];
 }

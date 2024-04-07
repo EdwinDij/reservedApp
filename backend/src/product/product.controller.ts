@@ -33,11 +33,12 @@ export class ProductController {
     return this.productService.createProduct(productDto, userId, shopId);
   }
 
+  //création d'un produit dans tout les magasins
   @UseGuards(AuthGuard)
-  @Get("/:shopId")
-  async getAllProdduct(@Req() req, @Param("shopId") shopId: string) {
+  @Post("/")
+  async createProductInAllShop(@Body() productDto: ProductDto, @Req() req){
     const userId = req.user.sub;
-    return this.productService.getAllProduct(userId, shopId);
+    return this.productService.createProductInAllShop(productDto, userId);
   }
 
   @UseGuards(AuthGuard)
@@ -45,7 +46,7 @@ export class ProductController {
   async getProductById(
     @Req() req,
     @Param("shopId") shopId: string,
-    @Param("productId") productId: string,
+    @Param("productId") productId: string, // 👈 meme logique pour l'update et la suppression
   ) {
     const userId = req.user.sub;
     return this.productService.getProductById(userId, shopId, productId);

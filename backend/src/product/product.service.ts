@@ -13,7 +13,7 @@ export class ProductService {
     private shopRepository: Repository<Shop>,
     @InjectRepository(Product)
     private productRepository: Repository<Product>,
-  ) { }
+  ) {}
 
   async createProduct(productDto: ProductDto, userId: string, shopId: string) {
     try {
@@ -34,7 +34,7 @@ export class ProductService {
       }
       const productExist = await this.productRepository.findOne({
         where: { name: productDto.name, shop: shop },
-      })
+      });
 
       if (productExist) {
         return { message: "Produit déjà existant", status: 400 };
@@ -45,9 +45,46 @@ export class ProductService {
         price: productDto.price,
         description: productDto.description,
         shop: shop,
-      })
+      });
       return { message: "Produit créé avec succès", status: 201 };
+    } catch (error: unknown) {
+      console.log(error);
+      return { message: "Une erreur s'est produite", status: 500 };
+    }
+  }
 
+  async createProductInAllShop(productDto: ProductDto, userId: string) {
+    try {
+      // Récupérer tous les magasins de l'utilisateur
+      const user = await this.usersRepository.findOne({
+        where: { id: userId },
+      });
+
+      if (!user) {
+        return { message: "Utilisateur non trouvé", status: 404 };
+      }
+
+      const shops = await this.shopRepository.find({
+        where: { userId: userId },
+      });
+
+      if (!shops || shops.length === 0) {
+        return {
+          message: "Aucun magasin trouvé pour cet utilisateur",
+          status: 404,
+        };
+      }
+
+      // Créer le produit dans chaque magasin
+      const createdProducts = [];
+      for (const shop of shops) {
+        const product = await this.createProduct(productDto, userId, shop.id);
+        createdProducts.push(product);
+      }
+      return {
+        message: "Produit créé avec succès dans tous les magasins",
+        status: 201,
+      };
     } catch (error: unknown) {
       console.log(error);
       return { message: "Une erreur s'est produite", status: 500 };

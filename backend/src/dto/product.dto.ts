@@ -12,4 +12,5 @@ export class ProductDto {
   @IsNotEmpty()
   @IsString()
   description: string;
+  products: any;
 }
