@@ -1,5 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
-import { Shop } from "./index";
+// product.entity.ts
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToMany,
+  OneToMany,
+} from "typeorm";
+import { Shop } from "./shop.entity";
+import { ProductShop } from "./product-shop.entity";
 
 @Entity()
 export class Product {
@@ -15,6 +23,9 @@ export class Product {
   @Column({ nullable: false })
   description: string;
 
-  @ManyToOne(() => Shop, (shop) => shop.products)
-  shop: Shop | Shop["id"];
+  @OneToMany(() => ProductShop, (productShop) => productShop.product)
+  productShops: ProductShop[];
+
+  @ManyToMany(() => Shop, (shop) => shop.products)
+  shops: Shop[];
 }

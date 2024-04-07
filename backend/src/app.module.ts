@@ -10,7 +10,7 @@ import { ProductModule } from "./product/product.module";
 import { ShopModule } from "./shop/shop.module";
 import { AuthModule } from "./auth/auth.module";
 
-import { Shop, User, Product } from "./entity";
+import { Shop, User, Product, ProductShop } from "./entity";
 
 @Module({
   imports: [
@@ -25,7 +25,7 @@ import { Shop, User, Product } from "./entity";
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [User, Shop, Product],
+      entities: [User, Shop, Product, ProductShop],
       synchronize: true,
     }),
     JwtModule.register({
